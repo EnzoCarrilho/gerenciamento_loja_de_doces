@@ -1,4 +1,3 @@
-
 create database db_ianes_doces;
 use db_ianes_doces;
 
@@ -20,6 +19,10 @@ CREATE TABLE tb_doce (
     massa VARCHAR(50) NOT NULL,
     cobertura VARCHAR(50),
     recheio VARCHAR(50),
+
+    quantidade INT NOT NULL,
+    peso_kg DECIMAL(6,3) NOT NULL,
+
     vencimento DATE NOT NULL,
 
     id_usuario INT NOT NULL,
@@ -33,7 +36,6 @@ CREATE TABLE tb_doce (
         FOREIGN KEY (id_tipo_doce)
         REFERENCES tb_tipo_doce(id)
 );
-
 CREATE TABLE tb_descarte_doce (
     id INT PRIMARY KEY AUTO_INCREMENT,
 

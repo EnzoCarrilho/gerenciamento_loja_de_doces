@@ -6,9 +6,14 @@ CREATE PROCEDURE prc_cadastrar_doce(
     IN p_massa VARCHAR(50),
     IN p_cobertura VARCHAR(50),
     IN p_recheio VARCHAR(50),
+
+    IN p_quantidade INT,
+    IN p_peso_kg DECIMAL(6,3),
+
     IN p_vencimento DATE,
     IN p_id_usuario INT,
     IN p_id_tipo_doce INT,
+
     OUT p_message JSON
 )
 BEGIN
@@ -26,6 +31,8 @@ BEGIN
         massa,
         cobertura,
         recheio,
+        quantidade,
+        peso_kg,
         vencimento,
         id_usuario,
         id_tipo_doce
@@ -35,21 +42,27 @@ BEGIN
         p_massa,
         p_cobertura,
         p_recheio,
+        p_quantidade,
+        p_peso_kg,
         p_vencimento,
         p_id_usuario,
         p_id_tipo_doce
     );
 
     IF ROW_COUNT() > 0 THEN
+
         SET p_message = JSON_OBJECT(
             'status_code', 201,
             'message', 'Doce cadastrado com sucesso'
         );
+
     ELSE
+
         SET p_message = JSON_OBJECT(
             'status_code', 400,
             'message', 'Não foi possível cadastrar o doce'
         );
+
     END IF;
 
 END $$
@@ -123,27 +136,65 @@ DELIMITER ;
 
 DELIMITER $$
 
-CREATE PROCEDURE prc_listar_doces_vencidos()
+CREATE PROCEDURE prc_listar_doces_descartados()
 BEGIN
 
-    SELECT *
-    FROM tb_doce
-    WHERE vencimento < CURDATE();
+    SELECT
+        dd.id,
+        d.nome,
+        d.massa,
+        d.cobertura,
+        d.recheio,
+
+        d.quantidade,
+        d.peso_kg,
+
+        d.vencimento,
+
+        td.tipo AS tipo_doce,
+        ur.nome AS usuario_descarte,
+        dd.data AS data_descarte
+
+    FROM tb_descarte_doce dd
+
+    INNER JOIN tb_doce d
+        ON d.id = dd.id_doce
+
+    INNER JOIN tb_tipo_doce td
+        ON td.id = d.id_tipo_doce
+
+    INNER JOIN tb_usuario ur
+        ON ur.id = dd.id_usuario;
 
 END $$
 
-DELIMITER 
-
+DELIMITER ;
 
 DELIMITER $$
 
 CREATE PROCEDURE prc_listar_doces_disponiveis()
 BEGIN
 
-    SELECT d.*
+    SELECT
+        d.id,
+        d.nome,
+        d.massa,
+        d.cobertura,
+        d.recheio,
+
+        d.quantidade,
+        d.peso_kg,
+
+        d.vencimento,
+
+        d.id_usuario,
+        d.id_tipo_doce
+
     FROM tb_doce d
+
     LEFT JOIN tb_descarte_doce descarte
         ON descarte.id_doce = d.id
+
     WHERE descarte.id IS NULL;
 
 END $$

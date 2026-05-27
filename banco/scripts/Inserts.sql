@@ -18,7 +18,6 @@ VALUES
 ('Bolo'),
 ('Torta');
 
-
 -- =========================
 -- DOCES
 -- =========================
@@ -28,6 +27,8 @@ INSERT INTO tb_doce (
     massa,
     cobertura,
     recheio,
+    quantidade,
+    peso_kg,
     vencimento,
     id_usuario,
     id_tipo_doce
@@ -38,6 +39,8 @@ VALUES
     'Chocolate',
     'Brigadeiro',
     'Morango',
+    2,
+    3.500,
     '2026-06-10',
     1,
     1
@@ -47,6 +50,8 @@ VALUES
     'Massa crocante',
     'Merengue',
     'Limão',
+    5,
+    2.300,
     '2026-04-15',
     2,
     2
@@ -56,6 +61,8 @@ VALUES
     'Velvet',
     'Cream Cheese',
     'Frutas Vermelhas',
+    1,
+    1.800,
     '2026-06-20',
     1,
     1
@@ -65,6 +72,8 @@ VALUES
     'Biscoito',
     'Chocolate',
     'Baunilha',
+    3,
+    2.100,
     '2026-03-12',
     3,
     2
