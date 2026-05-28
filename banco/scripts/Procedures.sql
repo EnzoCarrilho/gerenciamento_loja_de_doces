@@ -145,12 +145,7 @@ BEGIN
         d.massa,
         d.cobertura,
         d.recheio,
-
-        d.quantidade,
-        d.peso_kg,
-
         d.vencimento,
-
         td.tipo AS tipo_doce,
         ur.nome AS usuario_descarte,
         dd.data AS data_descarte
@@ -170,32 +165,114 @@ END $$
 
 DELIMITER ;
 
+
 DELIMITER $$
 
 CREATE PROCEDURE prc_listar_doces_disponiveis()
 BEGIN
 
-    SELECT
-        d.id,
-        d.nome,
-        d.massa,
-        d.cobertura,
-        d.recheio,
-
-        d.quantidade,
-        d.peso_kg,
-
-        d.vencimento,
-
-        d.id_usuario,
-        d.id_tipo_doce
-
+    SELECT d.*
     FROM tb_doce d
-
     LEFT JOIN tb_descarte_doce descarte
         ON descarte.id_doce = d.id
-
     WHERE descarte.id IS NULL;
+
+END $$
+
+DELIMITER ;
+
+DELIMITER $$
+
+CREATE PROCEDURE prc_adicionar_quantidade_doce(
+    IN p_id_doce INT,
+    IN p_quantidade INT,
+    OUT p_message JSON
+)
+BEGIN
+
+    DECLARE EXIT HANDLER FOR SQLEXCEPTION
+    BEGIN
+        SET p_message = JSON_OBJECT(
+            'status_code', 500,
+            'message', 'Erro ao adicionar quantidade'
+        );
+    END;
+
+    UPDATE tb_doce
+    SET quantidade = quantidade + p_quantidade
+    WHERE id = p_id_doce;
+
+    IF ROW_COUNT() > 0 THEN
+
+        SET p_message = JSON_OBJECT(
+            'status_code', 200,
+            'message', 'Quantidade adicionada com sucesso'
+        );
+
+    ELSE
+
+        SET p_message = JSON_OBJECT(
+            'status_code', 404,
+            'message', 'Doce não encontrado'
+        );
+
+    END IF;
+
+END $$
+
+DELIMITER 
+
+
+DELIMITER $$
+
+CREATE PROCEDURE prc_remover_quantidade_doce(
+    IN p_id_doce INT,
+    IN p_quantidade INT,
+    OUT p_message JSON
+)
+BEGIN
+
+    DECLARE v_quantidade_atual INT;
+
+    DECLARE EXIT HANDLER FOR SQLEXCEPTION
+    BEGIN
+        SET p_message = JSON_OBJECT(
+            'status_code', 500,
+            'message', 'Erro ao remover quantidade'
+        );
+    END;
+
+    SELECT quantidade
+    INTO v_quantidade_atual
+    FROM tb_doce
+    WHERE id = p_id_doce;
+
+    IF v_quantidade_atual IS NULL THEN
+
+        SET p_message = JSON_OBJECT(
+            'status_code', 404,
+            'message', 'Doce não encontrado'
+        );
+
+    ELSEIF v_quantidade_atual < p_quantidade THEN
+
+        SET p_message = JSON_OBJECT(
+            'status_code', 400,
+            'message', 'Quantidade insuficiente'
+        );
+
+    ELSE
+
+        UPDATE tb_doce
+        SET quantidade = quantidade - p_quantidade
+        WHERE id = p_id_doce;
+
+        SET p_message = JSON_OBJECT(
+            'status_code', 200,
+            'message', 'Quantidade removida com sucesso'
+        );
+
+    END IF;
 
 END $$
 

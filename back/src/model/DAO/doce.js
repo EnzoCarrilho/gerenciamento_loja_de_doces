@@ -128,9 +128,53 @@ const discardDoce = async function (idDoce, idUsuario) {
     }
 }
 
+const updateAddQuantidade = async function(doce) {
+    try {
+        let sql = 'CALL prc_adicionar_quantidade_doce(?, ?, @result)'
+
+        const exec = await db.raw(sql, [doce.id, doce.quantidade])
+
+        const result = await db.raw('SELECT @result')
+        
+        if(Array.isArray(result))
+            return result[0][0]
+        else
+            return false
+
+
+    } catch (error) {
+        return false
+    }
+    
+}
+
+const updateRemoveQuantidade = async function(doce) {
+    try {
+        let sql = 'CALL prc_remover_quantidade_doce(?, ?, @result)'
+
+        const exec = await db.raw(sql, [doce.id, doce.quantidade])
+
+        const result = await db.raw('SELECT @result')
+
+        if(Array.isArray(result))
+            return result[0][0]
+        else
+            return false
+
+
+    } catch (error) {
+        return false
+    }
+    
+}
+
 
 module.exports = {
     selectAvaliableDoces,
     selectDiscardedDoces,
-    insertDoce
+    insertDoce,
+    updateDoce,
+    discardDoce,
+    updateAddQuantidade,
+    updateRemoveQuantidade
 }
